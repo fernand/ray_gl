@@ -1,0 +1,9 @@
+[package]
+name = "gl"
+version = "0.1.0"
+authors = ["Fernand Pajot <fernand@epigram.me>"]
+edition = "2018"
+
+[dependencies]
+gl = "0.13.0"
+sdl2 = {version = "0.32.2", features = ["bundled"]}
