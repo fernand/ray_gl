@@ -8,18 +8,19 @@ pub enum ShaderKind {
     Compute,
 }
 
-pub struct GLShader {
+pub struct Shader {
     pub id: GLuint,
 }
 
-pub struct Program {
+pub struct ShaderProgram {
     pub id: GLuint,
 }
 
-impl Program {
-    pub fn from_shaders(shaders: &[GLShader]) {
+impl ShaderProgram {
+    pub fn from_shaders(shaders: &[Shader]) -> ShaderProgram {
+        let program_id;
         unsafe {
-            let program_id = gl::CreateProgram();
+            program_id = gl::CreateProgram();
             ck();
             for shader in shaders {
                 gl::AttachShader(program_id, shader.id);
@@ -50,6 +51,7 @@ impl Program {
                 ck();
             }
         }
+        ShaderProgram { id: program_id }
     }
 
     pub fn set_used(&self) {
@@ -59,7 +61,7 @@ impl Program {
     }
 }
 
-impl Drop for Program {
+impl Drop for ShaderProgram {
     fn drop(&mut self) {
         unsafe {
             gl::DeleteProgram(self.id);
@@ -67,7 +69,7 @@ impl Drop for Program {
     }
 }
 
-impl Drop for GLShader {
+impl Drop for Shader {
     fn drop(&mut self) {
         unsafe {
             gl::DeleteShader(self.id);
@@ -76,7 +78,7 @@ impl Drop for GLShader {
     }
 }
 
-fn shader_from_source(name: &str, source: &[u8], kind: ShaderKind) -> GLShader {
+pub fn shader_from_source(name: &str, source: &[u8], kind: ShaderKind) -> Shader {
     let gl_shader_kind = match kind {
         ShaderKind::Vertex => gl::VERTEX_SHADER,
         ShaderKind::Fragment => gl::FRAGMENT_SHADER,
@@ -114,7 +116,7 @@ fn shader_from_source(name: &str, source: &[u8], kind: ShaderKind) -> GLShader {
             println!("Shader info log\n{}", String::from_utf8_lossy(&info_log));
             panic!("{:?} shader '{}' compilation failed", kind, name);
         }
-        GLShader { id: shader_id }
+        Shader { id: shader_id }
     }
 }
 
