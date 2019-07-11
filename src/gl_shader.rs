@@ -27,10 +27,34 @@ impl Program {
             }
             gl::LinkProgram(program_id);
             ck();
+            let mut program_status = 0;
+            gl::GetProgramiv(program_id, gl::LINK_STATUS, &mut program_status);
+            ck();
+            if program_status != 1 {
+                let mut info_log_length = 0;
+                gl::GetProgramiv(program_id, gl::INFO_LOG_LENGTH, &mut info_log_length);
+                ck();
+                let mut info_log = vec![0; info_log_length as usize];
+                gl::GetProgramInfoLog(
+                    program_id,
+                    info_log_length,
+                    ptr::null_mut(),
+                    info_log.as_mut_ptr() as *mut GLchar,
+                );
+                ck();
+                println!("Shader info log\n{}", String::from_utf8_lossy(&info_log));
+                panic!("program '{}' link failed", program_id);
+            }
             for shader in shaders {
                 gl::DetachShader(program_id, shader.id);
                 ck();
             }
+        }
+    }
+
+    pub fn set_used(&self) {
+        unsafe {
+            gl::UseProgram(self.id);
         }
     }
 }

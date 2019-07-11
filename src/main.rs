@@ -1,5 +1,7 @@
 mod gl_shader;
 
+use gl::types::{GLsizeiptr, GLuint, GLvoid};
+
 fn main() {
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
@@ -17,6 +19,18 @@ fn main() {
     let mut event_pump = sdl.event_pump().unwrap();
     unsafe {
         gl::Viewport(0, 0, 900, 700);
+    }
+    let vertices: Vec<f32> = vec![-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0];
+    unsafe {
+        let mut vbo: GLuint = 0;
+        gl::GenBuffers(1, &mut vbo);
+        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
+        gl::BufferData(
+            gl::ARRAY_BUFFER,
+            (vertices.len() * std::mem::size_of::<f32>()) as GLsizeiptr,
+            vertices.as_ptr() as *const GLvoid,
+            gl::STATIC_DRAW,
+        );
     }
     'main: loop {
         for event in event_pump.poll_iter() {
