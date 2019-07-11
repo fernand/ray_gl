@@ -1,3 +1,5 @@
+mod gl_shader;
+
 fn main() {
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
@@ -13,6 +15,9 @@ fn main() {
     let _gl_context = window.gl_create_context().unwrap();
     gl::load_with(|name| video_subsystem.gl_get_proc_address(name) as *const _);
     let mut event_pump = sdl.event_pump().unwrap();
+    unsafe {
+        gl::Viewport(0, 0, 900, 700);
+    }
     'main: loop {
         for event in event_pump.poll_iter() {
             match event {
