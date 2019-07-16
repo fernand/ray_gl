@@ -4,14 +4,20 @@ mod gl_shader;
 
 use gl::types::{GLint, GLsizeiptr, GLuint, GLvoid};
 use gl_shader::{shader_from_source, Shader, ShaderKind, ShaderProgram};
+use glfw::Context;
 use std::mem;
 use std::ptr;
 
 fn main() {
-    let sdl = sdl2::init().unwrap();
-    let video_subsystem = sdl.video().unwrap();
-    let gl_attr = video_subsystem.gl_attr();
-    gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
-    gl_attr.set_context_version(4, 6);
-    gl::load_with(|name| video_subsystem.gl_get_proc_address(name) as *const _);
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    glfw.window_hint(glfw::WindowHint::ContextVersionMajor(4));
+    glfw.window_hint(glfw::WindowHint::ContextVersionMinor(3));
+    glfw.window_hint(glfw::WindowHint::OpenGlProfile(
+        glfw::OpenGlProfileHint::Core,
+    ));
+    let (mut window, _) = glfw
+        .create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
+        .expect("Failed to create GLFW window.");
+    window.make_current();
+    gl::load_with(|s| glfw.get_proc_address_raw(s));
 }
