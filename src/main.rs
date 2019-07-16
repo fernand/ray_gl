@@ -36,6 +36,7 @@ fn get_image_buffer(nx: i32, ny: i32) -> GLuint {
         gl::GenTextures(1, &mut texture);
         gl::ActiveTexture(gl::TEXTURE0);
         gl::BindTexture(gl::TEXTURE_2D, texture);
+        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
         gl::TexImage2D(gl::TEXTURE_2D, 0, gl::RGBA32F as GLint, nx, ny, 0, gl::RGBA, gl::FLOAT, ptr::null());
         gl::BindImageTexture(0, texture, 0, gl::FALSE, 0, gl::WRITE_ONLY, gl::RGBA32F);
     }
