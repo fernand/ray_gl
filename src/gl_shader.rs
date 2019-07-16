@@ -20,35 +20,28 @@ impl ShaderProgram {
     pub fn from_shaders(shaders: &[Shader]) -> ShaderProgram {
         let program_id;
         unsafe {
-            program_id = gl::CreateProgram();
-            ck();
+            program_id = gl::CreateProgram(); ck();
             for shader in shaders {
-                gl::AttachShader(program_id, shader.id);
-                ck();
+                gl::AttachShader(program_id, shader.id); ck();
             }
-            gl::LinkProgram(program_id);
-            ck();
+            gl::LinkProgram(program_id); ck();
             let mut program_status = 0;
-            gl::GetProgramiv(program_id, gl::LINK_STATUS, &mut program_status);
-            ck();
+            gl::GetProgramiv(program_id, gl::LINK_STATUS, &mut program_status); ck();
             if program_status != 1 {
                 let mut info_log_length = 0;
-                gl::GetProgramiv(program_id, gl::INFO_LOG_LENGTH, &mut info_log_length);
-                ck();
+                gl::GetProgramiv(program_id, gl::INFO_LOG_LENGTH, &mut info_log_length); ck();
                 let mut info_log = vec![0; info_log_length as usize];
                 gl::GetProgramInfoLog(
                     program_id,
                     info_log_length,
                     ptr::null_mut(),
                     info_log.as_mut_ptr() as *mut GLchar,
-                );
-                ck();
+                ); ck();
                 println!("Shader info log\n{}", String::from_utf8_lossy(&info_log));
                 panic!("program '{}' link failed", program_id);
             }
             for shader in shaders {
-                gl::DetachShader(program_id, shader.id);
-                ck();
+                gl::DetachShader(program_id, shader.id); ck();
             }
         }
         ShaderProgram { id: program_id }
@@ -86,33 +79,27 @@ pub fn shader_from_source(name: &str, source: &[u8], kind: ShaderKind) -> Shader
     };
 
     unsafe {
-        let shader_id = gl::CreateShader(gl_shader_kind);
-        ck();
+        let shader_id = gl::CreateShader(gl_shader_kind); ck();
         gl::ShaderSource(
             shader_id,
             1,
             [source.as_ptr() as *const GLchar].as_ptr(),
             [source.len() as GLint].as_ptr(),
-        );
-        ck();
-        gl::CompileShader(shader_id);
-        ck();
+        ); ck();
+        gl::CompileShader(shader_id); ck();
 
         let mut compile_status = 0;
-        gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut compile_status);
-        ck();
+        gl::GetShaderiv(shader_id, gl::COMPILE_STATUS, &mut compile_status); ck();
         if compile_status != gl::TRUE as GLint {
             let mut info_log_length = 0;
-            gl::GetShaderiv(shader_id, gl::INFO_LOG_LENGTH, &mut info_log_length);
-            ck();
+            gl::GetShaderiv(shader_id, gl::INFO_LOG_LENGTH, &mut info_log_length); ck();
             let mut info_log = vec![0; info_log_length as usize];
             gl::GetShaderInfoLog(
                 shader_id,
                 info_log.len() as GLint,
                 ptr::null_mut(),
                 info_log.as_mut_ptr() as *mut GLchar,
-            );
-            ck();
+            ); ck();
             println!("Shader info log\n{}", String::from_utf8_lossy(&info_log));
             panic!("{:?} shader '{}' compilation failed", kind, name);
         }
