@@ -3,8 +3,6 @@ use std::ptr;
 
 #[derive(Debug)]
 pub enum ShaderKind {
-    Vertex,
-    Fragment,
     Compute,
 }
 
@@ -73,8 +71,6 @@ impl Drop for Shader {
 
 pub fn shader_from_source(name: &str, source: &[u8], kind: ShaderKind) -> Shader {
     let gl_shader_kind = match kind {
-        ShaderKind::Vertex => gl::VERTEX_SHADER,
-        ShaderKind::Fragment => gl::FRAGMENT_SHADER,
         ShaderKind::Compute => gl::COMPUTE_SHADER,
     };
 
@@ -107,7 +103,7 @@ pub fn shader_from_source(name: &str, source: &[u8], kind: ShaderKind) -> Shader
     }
 }
 
-fn ck() {
+pub fn ck() {
     unsafe {
         // Note that ideally we should be calling gl::GetError() in a loop until it
         // returns gl::NO_ERROR, but for now we'll just report the first one we find.
