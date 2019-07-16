@@ -110,5 +110,6 @@ fn main() {
                 gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
             }
             window.swap_buffers();
+            glfw.poll_events();
         }
 }
