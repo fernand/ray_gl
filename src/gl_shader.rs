@@ -126,3 +126,27 @@ pub fn ck() {
         }
     }
 }
+
+pub fn print_workgroup_info() {
+    let mut x_cnt = 0; let mut y_cnt = 0; let mut z_cnt = 0;
+    unsafe {
+        gl::GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_COUNT, 0, &mut x_cnt);
+        gl::GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_COUNT, 1, &mut y_cnt);
+        gl::GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_COUNT, 2, &mut z_cnt);
+    }
+    println!("max work group size x:{}, y:{}, z:{}", x_cnt, y_cnt, z_cnt);
+
+    let mut x_size = 0; let mut y_size = 0; let mut z_size = 0;
+    unsafe {
+        gl::GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_SIZE, 0, &mut x_size);
+        gl::GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_SIZE, 1, &mut y_size);
+        gl::GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_SIZE, 2, &mut z_size);
+    }
+    println!("max local (in one shader) work group size x:{}, y:{}, z:{}", x_size, y_size, z_size);
+
+    let mut work_grp_inv = 0;
+    unsafe {
+        gl::GetIntegerv(gl::MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &mut work_grp_inv);
+    }
+    println!("max local work group invocations {}", work_grp_inv);
+}
