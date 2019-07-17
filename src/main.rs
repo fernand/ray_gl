@@ -68,10 +68,12 @@ fn main() {
     while !window.should_close() {
         compute_shader_program.set_used();
         unsafe {
-            gl::DispatchCompute(nx as GLuint, ny as GLuint, 1);
-            gl::MemoryBarrier(gl::SHADER_IMAGE_ACCESS_BARRIER_BIT);
+            let start = std::time::Instant::now();
+            gl::DispatchCompute(nx as GLuint, ny as GLuint, 1); ck();
+            gl::MemoryBarrier(gl::SHADER_IMAGE_ACCESS_BARRIER_BIT); ck();
+            println!("Run time: {:?}", start.elapsed());
             let mut img_data: Vec<f32> = vec![0.; (nx*ny*3) as usize];
-            gl::BindTexture(gl::TEXTURE_2D, texture);
+            gl::BindTexture(gl::TEXTURE_2D, texture); ck();
             gl::GetTexImage(
                 gl::TEXTURE_2D,
                 0,

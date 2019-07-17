@@ -20,21 +20,21 @@ struct Camera {
     vec3 vertical;
 };
 
-uniform Material materials[4] = Material[4](
+const Material materials[4] = Material[4](
     Material(vec3(0.8, 0.3, 0.3), 0.0),
     Material(vec3(0.8, 0.8, 0.0), 0.0),
     Material(vec3(0.8, 0.6, 0.2), 1.0),
     Material(vec3(0.8, 0.8, 0.8), 0.3)
 );
 
-uniform Sphere objects[4] = Sphere[4](
+const Sphere objects[4] = Sphere[4](
     Sphere(vec3(0.0, 0.0, -1.0), 0.5, 0),
     Sphere(vec3(0.0, -100.5, -1.0), 100.0, 1),
     Sphere(vec3(1.0, 0.0, -1.0), 0.5, 2),
     Sphere(vec3(-1.0, 0.0, -1.0), 0.5, 3)
 );
 
-uniform Camera cam = Camera(
+const Camera cam = Camera(
     vec3(-2.0, 2.0, 1.0),
     vec3(-2.0859715983286593, 1.1254692789725564, 0.05650831512990695),
     vec3(1.029463283198752, -0.0, 1.029463283198752),
@@ -61,13 +61,10 @@ float randFloat() {
     return float(xorshift()) * (1.0 / float(0xffffffffU));
 }
 
+// TODO: improve this function.
 vec3 randInUnitSphere() {
-    while(true) {
-        vec3 p = 2.0 * vec3(xorshift(), xorshift(), xorshift()) -vec3(1.0);
-        if (dot(p, p) < 1.0) {
-            return p;
-        }
-    }
+    vec3 p = vec3(xorshift(), xorshift(), xorshift());
+    return normalize(p);
 }
 
 vec3 reflect(vec3 v, vec3 n) {
@@ -77,8 +74,8 @@ vec3 reflect(vec3 v, vec3 n) {
 #define FLT_MAX 3.402823466e+38
 #define NUM_RAYS 100
 #define MAX_DEPTH 50
-#define NX 2000.0f
-#define NY 1000.0f
+#define NX 2000
+#define NY 1000
 
 void main() {
     vec3 color = vec3(0.0, 0.0, 0.0);
@@ -89,13 +86,8 @@ void main() {
         float v = (gl_GlobalInvocationID.y + randFloat()) / NY;
         vec3 ray_origin = cam.origin;
         vec3 ray_direction = cam.lower_left_corner + u * cam.horizontal + v * cam.vertical - cam.origin; 
-        int depth = 0;
         vec3 attenuation = vec3(1.0);
-        while (true) {
-            if (depth >= MAX_DEPTH) {
-                // No color to add.
-                break;
-            }
+        for (int d=0; d<MAX_DEPTH; d++) {
             // Collision detection with all the spheres
             bool hit = false;
             float hit_t = FLT_MAX;
@@ -106,7 +98,7 @@ void main() {
                 vec3 oc = ray_origin - objects[i].center;
                 float a = dot(ray_direction, ray_direction);
                 float b = dot(oc, ray_direction);
-                float c = dot(oc, oc) - objects[i].radius - objects[i].radius;
+                float c = dot(oc, oc) - objects[i].radius * objects[i].radius;
                 float discriminant = b * b - a * c;
                 if (discriminant > 0.0) {
                     float a_t_max = a * hit_t;
@@ -131,7 +123,6 @@ void main() {
                     }
                 }
             }
-
             if (hit) {
                 // Look at material.
                 Material mat = materials[hit_mat_i];
@@ -141,6 +132,7 @@ void main() {
                     ray_origin = hit_p;
                     ray_direction = target - hit_p;
                     attenuation *= mat.albedo;
+                    continue;
                 } else {
                     vec3 reflected = reflect(normalize(ray_direction), hit_normal);
                     vec3 scattered_direction = reflected + mat.fuzz * randInUnitSphere();
@@ -148,6 +140,7 @@ void main() {
                         ray_origin = hit_p;
                         ray_direction = scattered_direction;
                         attenuation *= mat.albedo;
+                        continue;
                     } else {
                         break;
                     }
@@ -158,10 +151,8 @@ void main() {
                 color += attenuation * mix(vec3(1.0), vec3(0.5, 0.7, 1.0), alpha);
                 break;
             }
-            depth += 1;
         }
     }
     color /= NUM_RAYS;
-
     imageStore(pixels, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
 }
