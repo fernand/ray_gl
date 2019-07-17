@@ -20,6 +20,11 @@ struct Camera {
     vec3 vertical;
 };
 
+struct Ray {
+    vec3 origin;
+    vec3 direction;
+};
+
 uniform Material materials[4] = Material[4](
     Material(vec3(0.8, 0.3, 0.3), 0.0),
     Material(vec3(0.8, 0.8, 0.0), 0.0),
