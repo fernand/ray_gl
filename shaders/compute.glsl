@@ -1,5 +1,5 @@
 #version 430
-layout(local_size_x = 1, local_size_y = 1) in;
+layout(local_size_x = 32, local_size_y = 32) in;
 layout(rgba32f, binding = 0) uniform image2D pixels;
 
 struct Material {
@@ -74,8 +74,8 @@ vec3 reflect(vec3 v, vec3 n) {
 #define FLT_MAX 3.402823466e+38
 #define NUM_RAYS 100
 #define MAX_DEPTH 50
-#define NX 2000
-#define NY 1000
+#define NX 2048
+#define NY 1024
 
 void main() {
     vec3 color = vec3(0.0, 0.0, 0.0);
@@ -124,7 +124,6 @@ void main() {
                 }
             }
             if (hit) {
-                // Look at material.
                 Material mat = materials[hit_mat_i];
                 // Branch by metal or not metal.
                 if (mat.fuzz < 0.01) {
@@ -154,5 +153,6 @@ void main() {
         }
     }
     color /= NUM_RAYS;
+
     imageStore(pixels, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
 }

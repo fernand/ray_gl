@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
 mod gl_shader;
 
 use gl::types::{GLint, GLuint, GLvoid, GLsizeiptr};
@@ -46,8 +44,8 @@ fn main() {
         glfw::OpenGlProfileHint::Core,
     ));
 
-    let nx: i32 = 2000;
-    let ny: i32 = 1000;
+    let nx: i32 = 2048;
+    let ny: i32 = 1024;
 
     let (mut window, _) = glfw
         .create_window(nx as u32, ny as u32, "Hello this is window", glfw::WindowMode::Windowed)
@@ -55,9 +53,8 @@ fn main() {
     window.make_current();
     gl::load_with(|s| glfw.get_proc_address_raw(s));
 
-    //print_workgroup_info();
-
     let texture = get_image_buffer(nx, ny);
+    let mut img_data: Vec<f32> = vec![0.; (nx*ny*3) as usize];
 
     let compute_shader = shader_from_source("compute.glsl",
         &std::fs::read("shaders/compute.glsl").unwrap(),
@@ -65,24 +62,21 @@ fn main() {
     );
     let compute_shader_program = ShaderProgram::from_shaders(&[compute_shader]);
 
-    while !window.should_close() {
-        compute_shader_program.set_used();
-        unsafe {
-            let start = std::time::Instant::now();
-            gl::DispatchCompute(nx as GLuint, ny as GLuint, 1); ck();
-            gl::MemoryBarrier(gl::SHADER_IMAGE_ACCESS_BARRIER_BIT); ck();
-            println!("Run time: {:?}", start.elapsed());
-            let mut img_data: Vec<f32> = vec![0.; (nx*ny*3) as usize];
-            gl::BindTexture(gl::TEXTURE_2D, texture); ck();
-            gl::GetTexImage(
-                gl::TEXTURE_2D,
-                0,
-                gl::RGB,
-                gl::FLOAT,
-                img_data.as_mut_ptr() as *mut GLvoid,
-            ); ck();
-            write_png(nx, ny, img_data).unwrap();
-        }
-        window.set_should_close(true);
+    let start = std::time::Instant::now();
+    compute_shader_program.set_used();
+    unsafe {
+        gl::DispatchCompute((nx / 32) as GLuint, (ny / 32) as GLuint, 1); ck();
+        gl::MemoryBarrier(gl::SHADER_IMAGE_ACCESS_BARRIER_BIT); ck();
+        gl::BindTexture(gl::TEXTURE_2D, texture); ck();
+        gl::GetTexImage(
+            gl::TEXTURE_2D,
+            0,
+            gl::RGB,
+            gl::FLOAT,
+            img_data.as_mut_ptr() as *mut GLvoid,
+        ); ck();
+        println!("Run time: {:?}", start.elapsed());
+        write_png(nx, ny, img_data).unwrap();
     }
+    window.set_should_close(true);
 }
