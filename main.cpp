@@ -5,7 +5,6 @@
 #include "include/stb_image_write.h"
 
 #include <stdio.h>
-#include <stdlib.h> // exit, malloc
 #include <math.h> // sqrt
 
 #include "io.cpp"
@@ -54,7 +53,7 @@ int main() {
         return -1;
     }
 
-   float* imgData = new float[nx*ny*3];
+    float* imgData = new float[nx*ny*3];
     GLuint textureId = getImageBuffer(nx, ny);
     GLuint shaderId = shaderFromSource("rayTracer", "shaders/compute.glsl");
     GLuint programId = shaderProgramFromShader(shaderId);
