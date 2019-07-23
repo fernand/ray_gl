@@ -6,6 +6,6 @@ pushd build
 del *.pdb > NUL 2> NUL
 
 set compilerFlags=-Z7
-cl %compilerFlags% ..\main.cpp ..\include\glad\glad.c /link ..\glfw3dll.lib
+cl /nologo %compilerFlags% ..\main.cpp ..\include\glad\glad.c /link ..\glfw3dll.lib
 
 popd
