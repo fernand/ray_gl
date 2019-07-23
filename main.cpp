@@ -5,6 +5,7 @@
 #include "include/stb_image_write.h"
 
 #include <stdio.h>
+#include <stdlib.h> // exit
 #include <math.h> // sqrt
 
 #include "io.cpp"
